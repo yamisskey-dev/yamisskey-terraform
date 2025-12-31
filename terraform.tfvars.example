@@ -1,0 +1,27 @@
+# Terraform Variables Example
+# Copy this file to terraform.tfvars and fill in your values
+# WARNING: Do not commit terraform.tfvars to git!
+
+# Proxmox API Configuration
+proxmox_api_url          = "https://proxmox.local:8006/api2/json"
+proxmox_api_token_id     = "terraform@pve!terraform-token"
+proxmox_api_token_secret = "your-secret-token-here"
+proxmox_tls_insecure     = true
+
+# Proxmox Node Configuration
+proxmox_node    = "pve"  # Change to your node name (e.g., "k10")
+proxmox_storage = "local-lvm"
+
+# Test VM Configuration
+test_vm_enabled       = true
+test_vm_name          = "terraform-test"
+test_vm_template      = "ubuntu-22.04-cloudinit"  # Must exist in Proxmox
+test_vm_cores         = 2
+test_vm_memory        = 2048
+test_vm_disk_size     = "20G"
+test_vm_network_bridge = "vmbr1"
+
+# SSH Public Key (optional, for cloud-init)
+ssh_public_key = <<-EOT
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC... user@host
+EOT
