@@ -29,13 +29,13 @@ EOT
 # Production VM Configuration
 # Enable VMs you want to create (all disabled by default for safety)
 
-# pfSense - Router/Firewall
-pfsense_enabled  = false  # Set to true when ready to create
-pfsense_template = ""     # Leave empty to use ISO, or specify template name
+# OPNsense - Router/Firewall
+opnsense_enabled  = false  # Set to true when ready to create
+opnsense_template = ""     # Leave empty to use ISO, or specify template name
 
-# T-Pot Sensor - Honeypot Platform
+# T-Pot Hive - Honeypot Platform (full ELK)
 tpot_enabled  = false  # Set to true when ready to create
-tpot_template = "ubuntu-22.04-cloudinit"  # Or "debian-12-cloudinit"
+tpot_template = "debian-12-cloudinit"  # Debian 12 recommended for T-Pot
 
 # Malcolm - Network Analysis
 malcolm_enabled  = false  # Set to true when ready to create

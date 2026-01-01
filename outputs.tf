@@ -16,30 +16,30 @@ output "test_vm_name" {
 
 # Production VM outputs
 
-# pfSense
-output "pfsense_id" {
-  description = "pfSense VM ID"
-  value       = var.pfsense_enabled ? proxmox_vm_qemu.pfsense[0].id : null
+# OPNsense
+output "opnsense_id" {
+  description = "OPNsense VM ID"
+  value       = var.opnsense_enabled ? proxmox_vm_qemu.opnsense[0].id : null
 }
 
-output "pfsense_name" {
-  description = "pfSense VM name"
-  value       = var.pfsense_enabled ? proxmox_vm_qemu.pfsense[0].name : null
+output "opnsense_name" {
+  description = "OPNsense VM name"
+  value       = var.opnsense_enabled ? proxmox_vm_qemu.opnsense[0].name : null
 }
 
-# T-Pot Sensor
+# T-Pot Hive
 output "tpot_id" {
-  description = "T-Pot Sensor VM ID"
+  description = "T-Pot Hive VM ID"
   value       = var.tpot_enabled ? proxmox_vm_qemu.tpot[0].id : null
 }
 
 output "tpot_ip" {
-  description = "T-Pot Sensor VM IP address"
+  description = "T-Pot Hive VM IP address"
   value       = var.tpot_enabled ? proxmox_vm_qemu.tpot[0].default_ipv4_address : null
 }
 
 output "tpot_name" {
-  description = "T-Pot Sensor VM name"
+  description = "T-Pot Hive VM name"
   value       = var.tpot_enabled ? proxmox_vm_qemu.tpot[0].name : null
 }
 
@@ -85,9 +85,9 @@ output "vm_summary" {
       name = proxmox_vm_qemu.test_vm[0].name
     } : null
 
-    pfsense = var.pfsense_enabled ? {
-      id   = proxmox_vm_qemu.pfsense[0].id
-      name = proxmox_vm_qemu.pfsense[0].name
+    opnsense = var.opnsense_enabled ? {
+      id   = proxmox_vm_qemu.opnsense[0].id
+      name = proxmox_vm_qemu.opnsense[0].name
     } : null
 
     tpot = var.tpot_enabled ? {

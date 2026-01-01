@@ -46,16 +46,16 @@ resource "proxmox_vm_qemu" "test_vm" {
 # Production VMs
 # Note: Ensure you have appropriate templates/ISOs in Proxmox before applying
 
-# pfSense - Router/Firewall
-resource "proxmox_vm_qemu" "pfsense" {
-  count = var.pfsense_enabled ? 1 : 0
+# OPNsense - Router/Firewall
+resource "proxmox_vm_qemu" "opnsense" {
+  count = var.opnsense_enabled ? 1 : 0
 
-  name        = "pfsense"
-  desc        = "pfSense Router/Firewall with HAProxy and OpenVPN"
+  name        = "opnsense"
+  desc        = "OPNsense Router/Firewall with HAProxy and WireGuard"
   target_node = var.proxmox_node
 
-  # pfSense requires manual ISO installation, not cloud-init
-  # clone = var.pfsense_template  # Use if you have a template
+  # OPNsense requires manual ISO installation, not cloud-init
+  # clone = var.opnsense_template  # Use if you have a template
 
   # VM Specifications (4c/4GB/32GB)
   cores   = 4
@@ -64,7 +64,7 @@ resource "proxmox_vm_qemu" "pfsense" {
 
   # Boot from ISO (for initial install)
   # After install, remove this and set boot order
-  # iso = "local:iso/pfSense-CE-2.7.2-RELEASE-amd64.iso"
+  # iso = "local:iso/OPNsense-24.7-dvd-amd64.iso"
 
   # Disk Configuration
   disk {
@@ -98,7 +98,7 @@ resource "proxmox_vm_qemu" "pfsense" {
     bridge = "vmbr3"
   }
 
-  # pfSense requires BIOS boot
+  # OPNsense supports UEFI boot
   bios = "seabios"
 
   # Start on boot
@@ -111,23 +111,23 @@ resource "proxmox_vm_qemu" "pfsense" {
   tags = "terraform,production,network"
 }
 
-# T-Pot Sensor - Honeypot Platform (no ELK)
+# T-Pot Hive - Honeypot Platform (full ELK stack)
 resource "proxmox_vm_qemu" "tpot" {
   count = var.tpot_enabled ? 1 : 0
 
-  name        = "tpot-sensor"
-  desc        = "T-Pot Honeypot Sensor (no ELK stack)"
+  name        = "tpot"
+  desc        = "T-Pot Honeypot Platform with full ELK stack"
   target_node = var.proxmox_node
   clone       = var.tpot_template  # Debian/Ubuntu template
 
-  # VM Specifications (8c/8GB/128GB)
+  # VM Specifications (8c/16GB/256GB) - Official T-Pot Hive requirements
   cores   = 8
   sockets = 1
-  memory  = 8192  # 8GB
+  memory  = 16384  # 16GB
 
   # Disk Configuration
   disk {
-    size    = "128G"
+    size    = "256G"
     storage = var.proxmox_storage
     type    = "scsi"
   }

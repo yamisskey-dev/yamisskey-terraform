@@ -85,30 +85,30 @@ variable "ssh_public_key" {
 }
 
 # Production VM Configuration
-# pfSense
-variable "pfsense_enabled" {
-  description = "Enable pfSense VM creation"
+# OPNsense
+variable "opnsense_enabled" {
+  description = "Enable OPNsense VM creation"
   type        = bool
   default     = false  # Disabled by default, enable when ready
 }
 
-variable "pfsense_template" {
-  description = "Template for pfSense VM (optional, can use ISO)"
+variable "opnsense_template" {
+  description = "Template for OPNsense VM (optional, can use ISO)"
   type        = string
   default     = ""
 }
 
-# T-Pot Sensor
+# T-Pot Hive
 variable "tpot_enabled" {
-  description = "Enable T-Pot Sensor VM creation"
+  description = "Enable T-Pot Hive VM creation"
   type        = bool
   default     = false
 }
 
 variable "tpot_template" {
-  description = "Template for T-Pot VM (Debian/Ubuntu)"
+  description = "Template for T-Pot VM (Debian 12 recommended)"
   type        = string
-  default     = "ubuntu-22.04-cloudinit"
+  default     = "debian-12-cloudinit"
 }
 
 # Malcolm

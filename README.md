@@ -10,18 +10,18 @@ This project handles VM provisioning for the security research and CTF environme
 
 | VM | vCPU | RAM | Disk | Purpose |
 |----|------|-----|------|---------|
-| **pfSense** | 4c | 4GB | 32GB | Router, Firewall, HAProxy, OpenVPN |
-| **T-Pot (Sensor)** | 8c | 8GB | 128GB | Honeypot sensors (Cowrie, Dionaea, ElasticPot) - no ELK |
-| **Malcolm** | 12c | 24GB | 500GB | Network analysis (Zeek, Suricata, ELK) + T-Pot log analysis |
+| **OPNsense** | 4c | 4GB | 32GB | Router, Firewall, HAProxy, WireGuard |
+| **T-Pot (Hive)** | 8c | 16GB | 256GB | Honeypot platform with full ELK stack (Cowrie, Dionaea, Kibana) |
+| **Malcolm** | 12c | 24GB | 500GB | Network traffic analysis (Zeek, Suricata, PCAP) |
 | **CTF-Challenges** | 4c | 4GB | 100GB | Isolated CTF challenge execution environment |
 
-**Total allocation**: 28 vCPU, 40GB RAM (leaving 24GB for Proxmox host and overhead)
+**Total allocation**: 28 vCPU, 48GB RAM (leaving 16GB for Proxmox host and overhead)
 
 **Notes**:
 - CTFd platform (web UI, scoreboard) runs on balthasar/caspar servers via Docker
-- T-Pot runs in Sensor mode (honeypots only, no ELK stack)
-- Malcolm's ELK stack analyzes both network traffic and T-Pot honeypot logs
-- Configuration based on official requirements: [T-Pot](https://github.com/telekom-security/tpotce), [Malcolm](https://github.com/cisagov/Malcolm/blob/main/docs/system-requirements.md), [pfSense](https://docs.netgate.com/pfsense/en/latest/hardware/size.html)
+- T-Pot runs in Hive mode with full ELK stack for honeypot visualization
+- Malcolm focuses on network traffic analysis (PCAP, Zeek, Suricata)
+- Configuration based on official requirements: [T-Pot](https://github.com/telekom-security/tpotce), [Malcolm](https://github.com/cisagov/Malcolm/blob/main/docs/system-requirements.md), [OPNsense](https://docs.opnsense.org/manual/hardware.html)
 
 ### Separation of Concerns
 
@@ -159,7 +159,7 @@ terraform apply
 
 # 2. Ansible configures VMs
 cd ../yamisskey-ansible
-task run PLAYBOOK=pfsense
+task run PLAYBOOK=opnsense
 ```
 
 ## Troubleshooting
