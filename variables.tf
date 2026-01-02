@@ -4,7 +4,7 @@
 variable "proxmox_node" {
   description = "Proxmox node name"
   type        = string
-  default     = "pve"
+  default     = "mary"
 }
 
 variable "proxmox_storage" {
@@ -55,7 +55,7 @@ variable "test_vm_disk_size" {
 variable "test_vm_network_bridge" {
   description = "Network bridge for test VM"
   type        = string
-  default     = "vmbr1"
+  default     = "vmbr0"
 }
 
 # =============================================================================
