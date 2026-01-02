@@ -1,231 +1,267 @@
-# Main Terraform Configuration
-# This is a minimal mock configuration for testing Proxmox connectivity
+# Proxmox VE Virtual Machines for yamisskey infrastructure
+# Using bpg/proxmox provider (Proxmox 9.x compatible)
 
-# Test VM Resource (minimal configuration)
-resource "proxmox_vm_qemu" "test_vm" {
+# =============================================================================
+# Test VM - For initial validation
+# =============================================================================
+resource "proxmox_virtual_environment_vm" "test_vm" {
   count = var.test_vm_enabled ? 1 : 0
 
   name        = var.test_vm_name
-  target_node = var.proxmox_node
-  clone       = var.test_vm_template
+  description = "Terraform test VM for validation"
+  node_name   = var.proxmox_node
+  tags        = ["terraform", "test"]
 
-  # VM Specifications
-  cores   = var.test_vm_cores
-  sockets = 1
-  memory  = var.test_vm_memory
-
-  # Disk Configuration
-  disk {
-    size    = var.test_vm_disk_size
-    storage = var.proxmox_storage
-    type    = "scsi"
+  clone {
+    vm_id = var.test_vm_template_id
   }
 
-  # Network Configuration
-  network {
-    model  = "virtio"
+  cpu {
+    cores = var.test_vm_cores
+    type  = "host"
+  }
+
+  memory {
+    dedicated = var.test_vm_memory
+  }
+
+  disk {
+    datastore_id = var.proxmox_storage
+    size         = var.test_vm_disk_size
+    interface    = "scsi0"
+  }
+
+  network_device {
     bridge = var.test_vm_network_bridge
   }
 
-  # Cloud-init Configuration (optional)
-  os_type = "cloud-init"
-
-  # SSH key injection (if provided)
-  sshkeys = var.ssh_public_key != "" ? var.ssh_public_key : null
-
-  # Lifecycle settings
-  lifecycle {
-    # Prevent accidental destruction
-    # prevent_destroy = true
+  initialization {
+    ip_config {
+      ipv4 {
+        address = "dhcp"
+      }
+    }
   }
 
-  # Tags for organization
-  tags = "terraform,test"
+  lifecycle {
+    ignore_changes = [
+      initialization,
+    ]
+  }
 }
 
-# Production VMs
-# Note: Ensure you have appropriate templates/ISOs in Proxmox before applying
-
+# =============================================================================
 # OPNsense - Router/Firewall
-resource "proxmox_vm_qemu" "opnsense" {
+# =============================================================================
+resource "proxmox_virtual_environment_vm" "opnsense" {
   count = var.opnsense_enabled ? 1 : 0
 
   name        = "opnsense"
-  desc        = "OPNsense Router/Firewall with HAProxy and WireGuard"
-  target_node = var.proxmox_node
+  description = "OPNsense Router/Firewall with HAProxy and WireGuard"
+  node_name   = var.proxmox_node
+  tags        = ["terraform", "production", "network"]
 
-  # OPNsense requires manual ISO installation, not cloud-init
-  # clone = var.opnsense_template  # Use if you have a template
+  # OPNsense requires manual ISO install, no clone
+  # After first boot, convert to template or manage via Ansible
 
-  # VM Specifications (4c/4GB/32GB)
-  cores   = 4
-  sockets = 1
-  memory  = 4096  # 4GB
-
-  # Boot from ISO (for initial install)
-  # After install, remove this and set boot order
-  # iso = "local:iso/OPNsense-24.7-dvd-amd64.iso"
-
-  # Disk Configuration
-  disk {
-    size    = "32G"
-    storage = var.proxmox_storage
-    type    = "scsi"
+  cpu {
+    cores = 4
+    type  = "host"
   }
 
-  # Network Configuration - Multiple interfaces
-  # vmbr0: WAN
-  network {
-    model  = "virtio"
+  memory {
+    dedicated = 4096
+  }
+
+  disk {
+    datastore_id = var.proxmox_storage
+    size         = 32
+    interface    = "scsi0"
+  }
+
+  # WAN - External network
+  network_device {
     bridge = "vmbr0"
   }
 
-  # vmbr1: LAN
-  network {
-    model  = "virtio"
+  # LAN - Internal network
+  network_device {
     bridge = "vmbr1"
   }
 
-  # vmbr2: DMZ
-  network {
-    model  = "virtio"
+  # DMZ - Security research zone
+  network_device {
     bridge = "vmbr2"
   }
 
-  # vmbr3: Management
-  network {
-    model  = "virtio"
+  # Management network
+  network_device {
     bridge = "vmbr3"
   }
 
-  # OPNsense supports UEFI boot
-  bios = "seabios"
-
-  # Start on boot
-  onboot = true
+  bios    = "seabios"
+  on_boot = true
 
   lifecycle {
-    prevent_destroy = true  # Protect critical infrastructure
+    prevent_destroy = true
   }
-
-  tags = "terraform,production,network"
 }
 
+# =============================================================================
 # T-Pot Hive - Honeypot Platform (full ELK stack)
-resource "proxmox_vm_qemu" "tpot" {
+# =============================================================================
+resource "proxmox_virtual_environment_vm" "tpot" {
   count = var.tpot_enabled ? 1 : 0
 
   name        = "tpot"
-  desc        = "T-Pot Honeypot Platform with full ELK stack"
-  target_node = var.proxmox_node
-  clone       = var.tpot_template  # Debian/Ubuntu template
+  description = "T-Pot Hive - Honeypot platform with full ELK stack"
+  node_name   = var.proxmox_node
+  tags        = ["terraform", "production", "security"]
 
-  # VM Specifications (8c/16GB/256GB) - Official T-Pot Hive requirements
-  cores   = 8
-  sockets = 1
-  memory  = 16384  # 16GB
+  clone {
+    vm_id = var.tpot_template_id
+  }
 
-  # Disk Configuration
+  cpu {
+    cores = 8
+    type  = "host"
+  }
+
+  memory {
+    dedicated = 16384
+  }
+
   disk {
-    size    = "256G"
-    storage = var.proxmox_storage
-    type    = "scsi"
+    datastore_id = var.proxmox_storage
+    size         = 256
+    interface    = "scsi0"
   }
 
-  # Network Configuration - DMZ only
-  network {
-    model  = "virtio"
-    bridge = "vmbr2"  # DMZ
+  # DMZ network for honeypot exposure
+  network_device {
+    bridge = "vmbr2"
   }
 
-  # Cloud-init
-  os_type = "cloud-init"
-  sshkeys = var.ssh_public_key != "" ? var.ssh_public_key : null
+  initialization {
+    ip_config {
+      ipv4 {
+        address = "dhcp"
+      }
+    }
+  }
 
-  # Start on boot
-  onboot = true
+  on_boot = true
 
   lifecycle {
     prevent_destroy = true
+    ignore_changes = [
+      initialization,
+    ]
   }
-
-  tags = "terraform,production,security,honeypot"
 }
 
-# Malcolm - Network Analysis Platform
-resource "proxmox_vm_qemu" "malcolm" {
+# =============================================================================
+# Malcolm - Network Traffic Analysis
+# =============================================================================
+resource "proxmox_virtual_environment_vm" "malcolm" {
   count = var.malcolm_enabled ? 1 : 0
 
   name        = "malcolm"
-  desc        = "Malcolm Network Analysis (Zeek, Suricata, ELK) + T-Pot log analysis"
-  target_node = var.proxmox_node
-  clone       = var.malcolm_template  # Ubuntu template
+  description = "Malcolm - Network traffic analysis (Zeek, Suricata, PCAP)"
+  node_name   = var.proxmox_node
+  tags        = ["terraform", "production", "security"]
 
-  # VM Specifications (12c/24GB/500GB)
-  cores   = 12
-  sockets = 1
-  memory  = 24576  # 24GB
+  clone {
+    vm_id = var.malcolm_template_id
+  }
 
-  # Disk Configuration
+  cpu {
+    cores = 12
+    type  = "host"
+  }
+
+  memory {
+    dedicated = 24576
+  }
+
   disk {
-    size    = "500G"
-    storage = var.proxmox_storage
-    type    = "scsi"
+    datastore_id = var.proxmox_storage
+    size         = 500
+    interface    = "scsi0"
   }
 
-  # Network Configuration - DMZ for traffic analysis
-  network {
-    model  = "virtio"
-    bridge = "vmbr2"  # DMZ
+  # DMZ network for traffic capture
+  network_device {
+    bridge = "vmbr2"
   }
 
-  # Cloud-init
-  os_type = "cloud-init"
-  sshkeys = var.ssh_public_key != "" ? var.ssh_public_key : null
+  initialization {
+    ip_config {
+      ipv4 {
+        address = "dhcp"
+      }
+    }
+  }
 
-  # Start on boot
-  onboot = true
+  on_boot = true
 
   lifecycle {
     prevent_destroy = true
+    ignore_changes = [
+      initialization,
+    ]
   }
-
-  tags = "terraform,production,security,analysis"
 }
 
+# =============================================================================
 # CTF Challenges - Isolated CTF Environment
-resource "proxmox_vm_qemu" "ctf_challenges" {
+# =============================================================================
+resource "proxmox_virtual_environment_vm" "ctf_challenges" {
   count = var.ctf_enabled ? 1 : 0
 
   name        = "ctf-challenges"
-  desc        = "Isolated CTF challenge execution environment"
-  target_node = var.proxmox_node
-  clone       = var.ctf_template  # Ubuntu template
+  description = "Isolated CTF challenge execution environment"
+  node_name   = var.proxmox_node
+  tags        = ["terraform", "production", "ctf"]
 
-  # VM Specifications (4c/4GB/100GB)
-  cores   = 4
-  sockets = 1
-  memory  = 4096  # 4GB
+  clone {
+    vm_id = var.ctf_template_id
+  }
 
-  # Disk Configuration
+  cpu {
+    cores = 4
+    type  = "host"
+  }
+
+  memory {
+    dedicated = 4096
+  }
+
   disk {
-    size    = "100G"
-    storage = var.proxmox_storage
-    type    = "scsi"
+    datastore_id = var.proxmox_storage
+    size         = 100
+    interface    = "scsi0"
   }
 
-  # Network Configuration - DMZ for isolation
-  network {
-    model  = "virtio"
-    bridge = "vmbr2"  # DMZ
+  # DMZ network for isolation
+  network_device {
+    bridge = "vmbr2"
   }
 
-  # Cloud-init
-  os_type = "cloud-init"
-  sshkeys = var.ssh_public_key != "" ? var.ssh_public_key : null
+  initialization {
+    ip_config {
+      ipv4 {
+        address = "dhcp"
+      }
+    }
+  }
 
-  # Don't start on boot (start only during CTF events)
-  onboot = false
+  on_boot = false
 
-  tags = "terraform,production,ctf"
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes = [
+      initialization,
+    ]
+  }
 }

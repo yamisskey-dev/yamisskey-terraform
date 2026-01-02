@@ -3,8 +3,8 @@ terraform {
 
   required_providers {
     proxmox = {
-      source  = "telmate/proxmox"
-      version = "~> 2.9"
+      source  = "bpg/proxmox"
+      version = "~> 0.70"
     }
     sops = {
       source  = "carlpett/sops"
@@ -19,17 +19,7 @@ data "sops_file" "secrets" {
 }
 
 provider "proxmox" {
-  pm_api_url          = data.sops_file.secrets.data["proxmox_api_url"]
-  pm_api_token_id     = data.sops_file.secrets.data["proxmox_api_token_id"]
-  pm_api_token_secret = data.sops_file.secrets.data["proxmox_api_token_secret"]
-  pm_tls_insecure     = data.sops_file.secrets.data["proxmox_tls_insecure"] == "true"
-
-  # Uncomment for debugging
-  # pm_log_enable = true
-  # pm_log_file   = "terraform-plugin-proxmox.log"
-  # pm_debug      = true
-  # pm_log_levels = {
-  #   _default    = "debug"
-  #   _capturelog = ""
-  # }
+  endpoint  = data.sops_file.secrets.data["proxmox_api_url"]
+  api_token = "${data.sops_file.secrets.data["proxmox_api_token_id"]}=${data.sops_file.secrets.data["proxmox_api_token_secret"]}"
+  insecure  = data.sops_file.secrets.data["proxmox_tls_insecure"] == "true"
 }

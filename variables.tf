@@ -1,7 +1,8 @@
 # Proxmox Node Configuration
 # Note: API credentials are loaded from secrets.sops.yaml via SOPS provider
+
 variable "proxmox_node" {
-  description = "Proxmox node name (e.g., pve, k10)"
+  description = "Proxmox node name"
   type        = string
   default     = "pve"
 }
@@ -12,7 +13,9 @@ variable "proxmox_storage" {
   default     = "local-lvm"
 }
 
+# =============================================================================
 # Test VM Configuration
+# =============================================================================
 variable "test_vm_enabled" {
   description = "Enable test VM creation (for initial validation)"
   type        = bool
@@ -25,10 +28,10 @@ variable "test_vm_name" {
   default     = "terraform-test"
 }
 
-variable "test_vm_template" {
-  description = "Template/Clone source for test VM (ID or name)"
-  type        = string
-  default     = "ubuntu-22.04-cloudinit"
+variable "test_vm_template_id" {
+  description = "Template VM ID for cloning (e.g., 9000)"
+  type        = number
+  default     = 9000
 }
 
 variable "test_vm_cores" {
@@ -44,9 +47,9 @@ variable "test_vm_memory" {
 }
 
 variable "test_vm_disk_size" {
-  description = "Disk size for test VM (e.g., 20G)"
-  type        = string
-  default     = "20G"
+  description = "Disk size in GB for test VM"
+  type        = number
+  default     = 20
 }
 
 variable "test_vm_network_bridge" {
@@ -55,62 +58,56 @@ variable "test_vm_network_bridge" {
   default     = "vmbr1"
 }
 
-# SSH Configuration
-variable "ssh_public_key" {
-  description = "SSH public key for VM access"
-  type        = string
-  default     = ""
-}
-
-# Production VM Configuration
-# OPNsense
+# =============================================================================
+# OPNsense - Router/Firewall
+# =============================================================================
 variable "opnsense_enabled" {
   description = "Enable OPNsense VM creation"
   type        = bool
-  default     = false  # Disabled by default, enable when ready
+  default     = false
 }
 
-variable "opnsense_template" {
-  description = "Template for OPNsense VM (optional, can use ISO)"
-  type        = string
-  default     = ""
-}
-
-# T-Pot Hive
+# =============================================================================
+# T-Pot Hive - Honeypot Platform
+# =============================================================================
 variable "tpot_enabled" {
   description = "Enable T-Pot Hive VM creation"
   type        = bool
   default     = false
 }
 
-variable "tpot_template" {
-  description = "Template for T-Pot VM (Debian 12 recommended)"
-  type        = string
-  default     = "debian-12-cloudinit"
+variable "tpot_template_id" {
+  description = "Template VM ID for T-Pot (Debian 12)"
+  type        = number
+  default     = 9001
 }
 
-# Malcolm
+# =============================================================================
+# Malcolm - Network Analysis
+# =============================================================================
 variable "malcolm_enabled" {
   description = "Enable Malcolm VM creation"
   type        = bool
   default     = false
 }
 
-variable "malcolm_template" {
-  description = "Template for Malcolm VM (Ubuntu)"
-  type        = string
-  default     = "ubuntu-22.04-cloudinit"
+variable "malcolm_template_id" {
+  description = "Template VM ID for Malcolm (Ubuntu)"
+  type        = number
+  default     = 9000
 }
 
+# =============================================================================
 # CTF Challenges
+# =============================================================================
 variable "ctf_enabled" {
   description = "Enable CTF Challenges VM creation"
   type        = bool
   default     = false
 }
 
-variable "ctf_template" {
-  description = "Template for CTF VM (Ubuntu)"
-  type        = string
-  default     = "ubuntu-22.04-cloudinit"
+variable "ctf_template_id" {
+  description = "Template VM ID for CTF (Ubuntu)"
+  type        = number
+  default     = 9000
 }
