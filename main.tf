@@ -75,7 +75,7 @@ resource "proxmox_virtual_environment_vm" "opnsense" {
   }
 
   memory {
-    dedicated = 4096
+    dedicated = 8192
   }
 
   disk {
@@ -146,9 +146,9 @@ resource "proxmox_virtual_environment_vm" "tpot" {
     interface    = "scsi0"
   }
 
-  # DMZ network for honeypot exposure
+  # WAN network (temporary, move to vmbr2/DMZ when OPNsense is ready)
   network_device {
-    bridge = "vmbr2"
+    bridge = "vmbr0"
   }
 
   initialization {
@@ -199,9 +199,9 @@ resource "proxmox_virtual_environment_vm" "malcolm" {
     interface    = "scsi0"
   }
 
-  # DMZ network for traffic capture
+  # WAN network (temporary, move to vmbr2/DMZ when OPNsense is ready)
   network_device {
-    bridge = "vmbr2"
+    bridge = "vmbr0"
   }
 
   initialization {
@@ -252,9 +252,9 @@ resource "proxmox_virtual_environment_vm" "ctf_challenges" {
     interface    = "scsi0"
   }
 
-  # DMZ network for isolation
+  # WAN network (temporary, move to vmbr2/DMZ when OPNsense is ready)
   network_device {
-    bridge = "vmbr2"
+    bridge = "vmbr0"
   }
 
   initialization {
