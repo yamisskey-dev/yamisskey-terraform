@@ -1,42 +1,32 @@
 # Terraform Variables Example
-# Copy this file to terraform.tfvars and fill in your values
-# WARNING: Do not commit terraform.tfvars to git!
-#
-# Note: API credentials are managed in secrets.sops.yaml (SOPS + age)
+# Copy to terraform.tfvars and customize
+# Note: API credentials are in secrets.sops.yaml (SOPS + age)
 
-# Proxmox Node Configuration
-proxmox_node    = "pve"  # Change to your node name (e.g., "k10")
+# Proxmox
+proxmox_node    = "mary"
 proxmox_storage = "local-lvm"
 
-# Test VM Configuration
-test_vm_enabled       = true
-test_vm_name          = "terraform-test"
-test_vm_template      = "ubuntu-22.04-cloudinit"  # Must exist in Proxmox
-test_vm_cores         = 2
-test_vm_memory        = 2048
-test_vm_disk_size     = "20G"
-test_vm_network_bridge = "vmbr1"
+# Test VM
+test_vm_enabled        = true
+test_vm_name           = "terraform-test"
+test_vm_template_id    = 9000  # Ubuntu 24.04
+test_vm_cores          = 2
+test_vm_memory         = 2048
+test_vm_disk_size      = 20
+test_vm_network_bridge = "vmbr0"
 
-# SSH Public Key (optional, for cloud-init)
-ssh_public_key = <<-EOT
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC... user@host
-EOT
+# OPNsense
+opnsense_enabled = false
+opnsense_iso     = "local:iso/OPNsense-25.1-dvd-amd64.iso"
 
-# Production VM Configuration
-# Enable VMs you want to create (all disabled by default for safety)
+# T-Pot
+tpot_enabled     = false
+tpot_template_id = 9001  # Debian 12
 
-# OPNsense - Router/Firewall
-opnsense_enabled  = false  # Set to true when ready to create
-opnsense_template = ""     # Leave empty to use ISO, or specify template name
+# Malcolm
+malcolm_enabled     = false
+malcolm_template_id = 9000  # Ubuntu 24.04
 
-# T-Pot Hive - Honeypot Platform (full ELK)
-tpot_enabled  = false  # Set to true when ready to create
-tpot_template = "debian-12-cloudinit"  # Debian 12 recommended for T-Pot
-
-# Malcolm - Network Analysis
-malcolm_enabled  = false  # Set to true when ready to create
-malcolm_template = "ubuntu-22.04-cloudinit"
-
-# CTF Challenges - Isolated CTF Environment
-ctf_enabled  = false  # Set to true when ready to create
-ctf_template = "ubuntu-22.04-cloudinit"
+# CTF
+ctf_enabled     = false
+ctf_template_id = 9000  # Ubuntu 24.04
