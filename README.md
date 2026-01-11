@@ -4,12 +4,13 @@ Proxmox VE VM provisioning for yamisskey security research infrastructure.
 
 ## VMs
 
-| VM | ID | Spec | Network | Purpose |
-|----|-----|------|---------|---------|
-| OPNsense | 101 | 4c/8GB/32GB | vmbr0,1,2 | Router/Firewall |
-| T-Pot | - | 8c/16GB/256GB | vmbr2 | Honeypot (ELK) |
-| Malcolm | - | 12c/24GB/500GB | vmbr2 | Traffic analysis |
-| CTF | - | 4c/4GB/100GB | vmbr2 | CTF environment |
+| VM | ID | Spec | Network | Purpose | Status |
+|----|-----|------|---------|---------|--------|
+| OPNsense | 101 | 4c/8GB/32GB | vmbr0,1,2 | Router/Firewall | Active |
+| T-Pot | 100 | 8c/16GB/256GB | vmbr2 | Honeypot (ELK) | Active |
+| Malcolm | 102 | 12c/24GB/500GB | vmbr2 | Traffic analysis | Active |
+| CTF | - | 4c/4GB/100GB | vmbr2 | CTF environment | Planned |
+| GOAD | - | 4c/20GB/80GB | vmbr1 | AD pentest lab | Planned |
 
 ## Network
 
@@ -43,11 +44,13 @@ graph TB
             tpot[T-Pot Hive<br/>8c/16GB<br/>Cowrie/Dionaea/ELK]:::sec
             malcolm[Malcolm<br/>12c/24GB<br/>Zeek/Suricata/Arkime]:::mon
             ctf[CTF<br/>4c/4GB<br/>Docker隔離]:::ctf
+            goad[GOAD Light<br/>4c/20GB<br/>AD攻撃練習]:::ctf
         end
     end
 
     vmbr0 --> opnsense
     opnsense --> vmbr1 & vmbr2
+    vmbr1 --> goad
     vmbr2 --> tpot & malcolm & ctf
 
     class proxmox host
@@ -78,6 +81,19 @@ qm template 9000
 wget https://mirror.ams1.nl.leaseweb.net/opnsense/releases/25.1/OPNsense-25.1-dvd-amd64.iso.bz2
 bunzip2 OPNsense-25.1-dvd-amd64.iso.bz2
 ```
+
+## Planned
+
+### GOAD (Game Of Active Directory)
+
+AD攻撃練習環境。GOAD-Lightを予定（メモリ20GB、ディスク80GB）。
+
+- https://orange-cyberdefense.github.io/GOAD/
+- Proxmoxプロバイダ対応
+
+### CTF
+
+Docker隔離環境でのCTFプラットフォーム。
 
 ## Docs
 
