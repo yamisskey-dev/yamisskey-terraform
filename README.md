@@ -1,4 +1,4 @@
-# proxmox-terraform
+# yamisskey-terraform
 
 Proxmox VE VM provisioning for yamisskey security research infrastructure.
 
