@@ -23,10 +23,6 @@ opnsense_iso     = "local:iso/OPNsense-25.1-dvd-amd64.iso"
 tpot_enabled     = false
 tpot_template_id = 9001  # Debian 12
 
-# Malcolm
-malcolm_enabled     = false
-malcolm_template_id = 9000  # Ubuntu 24.04
-
-# CTF
+# CTFd
 ctf_enabled     = false
 ctf_template_id = 9000  # Ubuntu 24.04

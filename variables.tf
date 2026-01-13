@@ -89,22 +89,7 @@ variable "tpot_template_id" {
 }
 
 # =============================================================================
-# Malcolm - Network Analysis
-# =============================================================================
-variable "malcolm_enabled" {
-  description = "Enable Malcolm VM creation"
-  type        = bool
-  default     = false
-}
-
-variable "malcolm_template_id" {
-  description = "Template VM ID for Malcolm (Ubuntu)"
-  type        = number
-  default     = 9000
-}
-
-# =============================================================================
-# CTF Challenges
+# CTFd - CTF Platform
 # =============================================================================
 variable "ctf_enabled" {
   description = "Enable CTF Challenges VM creation"

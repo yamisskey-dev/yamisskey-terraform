@@ -45,36 +45,20 @@ output "tpot_ipv4_addresses" {
   value       = var.tpot_enabled ? proxmox_virtual_environment_vm.tpot[0].ipv4_addresses : null
 }
 
-# Malcolm
-output "malcolm_id" {
-  description = "Malcolm VM ID"
-  value       = var.malcolm_enabled ? proxmox_virtual_environment_vm.malcolm[0].vm_id : null
+# CTFd
+output "ctfd_id" {
+  description = "CTFd VM ID"
+  value       = var.ctf_enabled ? proxmox_virtual_environment_vm.ctfd[0].vm_id : null
 }
 
-output "malcolm_name" {
-  description = "Malcolm VM name"
-  value       = var.malcolm_enabled ? proxmox_virtual_environment_vm.malcolm[0].name : null
+output "ctfd_name" {
+  description = "CTFd VM name"
+  value       = var.ctf_enabled ? proxmox_virtual_environment_vm.ctfd[0].name : null
 }
 
-output "malcolm_ipv4_addresses" {
-  description = "Malcolm VM IPv4 addresses"
-  value       = var.malcolm_enabled ? proxmox_virtual_environment_vm.malcolm[0].ipv4_addresses : null
-}
-
-# CTF Challenges
-output "ctf_id" {
-  description = "CTF Challenges VM ID"
-  value       = var.ctf_enabled ? proxmox_virtual_environment_vm.ctf_challenges[0].vm_id : null
-}
-
-output "ctf_name" {
-  description = "CTF Challenges VM name"
-  value       = var.ctf_enabled ? proxmox_virtual_environment_vm.ctf_challenges[0].name : null
-}
-
-output "ctf_ipv4_addresses" {
-  description = "CTF Challenges VM IPv4 addresses"
-  value       = var.ctf_enabled ? proxmox_virtual_environment_vm.ctf_challenges[0].ipv4_addresses : null
+output "ctfd_ipv4_addresses" {
+  description = "CTFd VM IPv4 addresses"
+  value       = var.ctf_enabled ? proxmox_virtual_environment_vm.ctfd[0].ipv4_addresses : null
 }
 
 # =============================================================================
@@ -100,16 +84,10 @@ output "vm_summary" {
       ipv4_addresses = proxmox_virtual_environment_vm.tpot[0].ipv4_addresses
     } : null
 
-    malcolm = var.malcolm_enabled ? {
-      vm_id          = proxmox_virtual_environment_vm.malcolm[0].vm_id
-      name           = proxmox_virtual_environment_vm.malcolm[0].name
-      ipv4_addresses = proxmox_virtual_environment_vm.malcolm[0].ipv4_addresses
-    } : null
-
-    ctf = var.ctf_enabled ? {
-      vm_id          = proxmox_virtual_environment_vm.ctf_challenges[0].vm_id
-      name           = proxmox_virtual_environment_vm.ctf_challenges[0].name
-      ipv4_addresses = proxmox_virtual_environment_vm.ctf_challenges[0].ipv4_addresses
+    ctfd = var.ctf_enabled ? {
+      vm_id          = proxmox_virtual_environment_vm.ctfd[0].vm_id
+      name           = proxmox_virtual_environment_vm.ctfd[0].name
+      ipv4_addresses = proxmox_virtual_environment_vm.ctfd[0].ipv4_addresses
     } : null
   }
 }

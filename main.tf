@@ -170,85 +170,33 @@ resource "proxmox_virtual_environment_vm" "tpot" {
 }
 
 # =============================================================================
-# Malcolm - Network Traffic Analysis
+# CTFd - CTF Platform
 # =============================================================================
-resource "proxmox_virtual_environment_vm" "malcolm" {
-  count = var.malcolm_enabled ? 1 : 0
-
-  name        = "malcolm"
-  description = "Malcolm - Network traffic analysis (Zeek, Suricata, PCAP)"
-  node_name   = var.proxmox_node
-  tags        = ["terraform", "production", "security"]
-
-  clone {
-    vm_id = var.malcolm_template_id
-  }
-
-  cpu {
-    cores = 12
-    type  = "host"
-  }
-
-  memory {
-    dedicated = 24576
-  }
-
-  disk {
-    datastore_id = var.proxmox_storage
-    size         = 500
-    interface    = "scsi0"
-  }
-
-  # DMZ network for traffic capture
-  network_device {
-    bridge = "vmbr2"
-  }
-
-  initialization {
-    ip_config {
-      ipv4 {
-        address = "dhcp"
-      }
-    }
-  }
-
-  on_boot = true
-
-  lifecycle {
-    prevent_destroy = true
-    ignore_changes = [
-      initialization,
-    ]
-  }
-}
-
-# =============================================================================
-# CTF Challenges - Isolated CTF Environment
-# =============================================================================
-resource "proxmox_virtual_environment_vm" "ctf_challenges" {
+resource "proxmox_virtual_environment_vm" "ctfd" {
   count = var.ctf_enabled ? 1 : 0
 
-  name        = "ctf-challenges"
-  description = "Isolated CTF challenge execution environment"
+  name        = "ctfd"
+  description = "CTFd - CTF platform with Docker Compose"
   node_name   = var.proxmox_node
   tags        = ["terraform", "production", "ctf"]
+  vm_id       = 103
 
   clone {
     vm_id = var.ctf_template_id
   }
 
   cpu {
-    cores = 4
+    cores = 2
     type  = "host"
   }
 
   memory {
-    dedicated = 4096
+    dedicated = 2048
   }
 
   disk {
     datastore_id = var.proxmox_storage
-    size         = 100
+    size         = 20
     interface    = "scsi0"
   }
 
@@ -265,7 +213,7 @@ resource "proxmox_virtual_environment_vm" "ctf_challenges" {
     }
   }
 
-  on_boot = false
+  on_boot = false # On-demand: start for CTF events
 
   lifecycle {
     prevent_destroy = true
