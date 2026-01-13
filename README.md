@@ -6,20 +6,19 @@ Proxmox VE VM provisioning for yamisskey security research infrastructure.
 
 ## VMs
 
-| VM | ID | Spec | Network | Purpose | Status |
-|----|-----|------|---------|---------|--------|
-| OPNsense | 101 | 4c/8GB/32GB | vmbr0,1,2 | Router/Firewall | Active |
-| T-Pot | 100 | 8c/16GB/256GB | vmbr2 | Honeypot (ELK) | Active |
-| CTFd | 103 | 2c/4GB/40GB | vmbr2 | CTF platform | Planned |
-| GOAD-Light | - | 4c/24GB/120GB | vmbr1 | AD pentest lab | Planned |
+| VM | ID | Spec | Network | Purpose | 運用 |
+|----|-----|------|---------|---------|------|
+| OPNsense | 101 | 4c/8GB/32GB | vmbr0,1,2 | Router/Firewall | 常設 |
+| T-Pot | 100 | 8c/16GB/256GB | vmbr2 | Honeypot (ELK) | 常設 |
+| CTFd | 103 | 2c/4GB/40GB | vmbr2 | CTF platform | 常設 |
+| GOAD-Light | - | 4c/24GB/120GB | vmbr1 | AD pentest lab | オンデマンド |
 
 ### Resource Profiles (64GB Host)
 
 | Profile | VMs | Memory | Notes |
 |---------|-----|--------|-------|
-| **Always-on** | OPNsense + T-Pot | 24GB | 常時稼働（攻撃収集） |
-| CTF | + CTFd | +4GB (28GB) | イベント時 |
-| AD Lab | OPNsense + GOAD-Light | 32GB | T-Pot停止して使用 |
+| **Always-on** | OPNsense + T-Pot + CTFd | 28GB | 常時稼働 |
+| AD Lab | + GOAD-Light | +24GB (52GB) | 必要なときのみ起動 |
 
 **Reserved:** Proxmox VE ~4GB
 
@@ -28,8 +27,8 @@ Proxmox VE VM provisioning for yamisskey security research infrastructure.
 | Bridge | Subnet | Purpose |
 |--------|--------|---------|
 | vmbr0 | 192.168.1.0/24 | WAN/Management |
-| vmbr1 | 10.0.1.0/24 | LAN |
-| vmbr2 | 10.0.2.0/24 | DMZ (isolated) |
+| vmbr1 | 10.0.1.0/24 | LAN (GOAD) |
+| vmbr2 | 10.0.2.0/24 | DMZ (T-Pot, CTFd) |
 
 ## Architecture
 
@@ -39,7 +38,7 @@ graph TB
     classDef net fill:#fff3e0,stroke:#ef6c00
     classDef sec fill:#fee2e2,stroke:#991b1b
     classDef ctf fill:#fef3c7,stroke:#d97706
-    classDef planned fill:#f3f4f6,stroke:#6b7280,stroke-dasharray: 5 5
+    classDef ondemand fill:#f3f4f6,stroke:#6b7280,stroke-dasharray: 5 5
 
     subgraph proxmox["GMKtec K10 - Proxmox VE (64GB)"]
         direction TB
@@ -50,22 +49,21 @@ graph TB
             vmbr2[vmbr2 DMZ<br/>10.0.2.0/24]:::net
         end
 
-        subgraph always["Always-on (24GB)"]
+        subgraph always["Always-on (28GB)"]
             opnsense[OPNsense<br/>4c/8GB]:::sec
             tpot[T-Pot Standard<br/>8c/16GB]:::sec
+            ctfd[CTFd<br/>2c/4GB]:::ctf
         end
 
-        subgraph planned["Planned"]
-            ctfd[CTFd<br/>2c/4GB]:::planned
-            goad[GOAD-Light<br/>4c/24GB]:::planned
+        subgraph ondemand["On-demand"]
+            goad[GOAD-Light<br/>4c/24GB]:::ondemand
         end
     end
 
     vmbr0 --> opnsense
     opnsense --> vmbr1 & vmbr2
     vmbr1 -.-> goad
-    vmbr2 --> tpot
-    vmbr2 -.-> ctfd
+    vmbr2 --> tpot & ctfd
 
     class proxmox host
 ```
@@ -98,15 +96,9 @@ bunzip2 OPNsense-25.1-dvd-amd64.iso.bz2
 
 ## Planned
 
-### CTFd
-
-CTFプラットフォーム。Docker Compose + Cloudflared + Nginx + Tailscale。
-
-- https://github.com/CTFd/CTFd
-
 ### GOAD-Light
 
-AD攻撃練習環境（3 Windows VMs）。T-Pot停止して使用。要件: 4c/20GB+/115GB+。
+AD攻撃練習環境（3 Windows VMs）。必要なときのみ起動。要件: 4c/24GB/120GB。
 
 - https://orange-cyberdefense.github.io/GOAD/
 
