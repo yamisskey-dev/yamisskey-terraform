@@ -10,7 +10,7 @@ Proxmox VE VM provisioning for yamisskey security research infrastructure.
 |----|-----|------|---------|---------|--------|
 | OPNsense | 101 | 4c/8GB/32GB | vmbr0,1,2 | Router/Firewall | Active |
 | T-Pot | 100 | 8c/16GB/256GB | vmbr2 | Honeypot (ELK) | Active |
-| CTFd | 103 | 2c/2GB/20GB | vmbr2 | CTF platform | Planned |
+| CTFd | 103 | 2c/4GB/40GB | vmbr2 | CTF platform | Planned |
 | GOAD-Light | - | 4c/24GB/120GB | vmbr1 | AD pentest lab | Planned |
 
 ### Resource Profiles (64GB Host)
@@ -18,7 +18,7 @@ Proxmox VE VM provisioning for yamisskey security research infrastructure.
 | Profile | VMs | Memory | Notes |
 |---------|-----|--------|-------|
 | **Always-on** | OPNsense + T-Pot | 24GB | 常時稼働（攻撃収集） |
-| CTF | + CTFd | +2GB (26GB) | イベント時 |
+| CTF | + CTFd | +4GB (28GB) | イベント時 |
 | AD Lab | OPNsense + GOAD-Light | 32GB | T-Pot停止して使用 |
 
 **Reserved:** Proxmox VE ~4GB
@@ -56,7 +56,7 @@ graph TB
         end
 
         subgraph planned["Planned"]
-            ctfd[CTFd<br/>2c/2GB]:::planned
+            ctfd[CTFd<br/>2c/4GB]:::planned
             goad[GOAD-Light<br/>4c/24GB]:::planned
         end
     end
@@ -100,7 +100,7 @@ bunzip2 OPNsense-25.1-dvd-amd64.iso.bz2
 
 ### CTFd
 
-CTFプラットフォーム。Docker Composeで構築予定。推奨: 4c/2GB。
+CTFプラットフォーム。Docker Compose + Cloudflared + Nginx + Tailscale。
 
 - https://github.com/CTFd/CTFd
 

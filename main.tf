@@ -195,12 +195,12 @@ resource "proxmox_virtual_environment_vm" "ctfd" {
   }
 
   memory {
-    dedicated = 2048
+    dedicated = 4096
   }
 
   disk {
     datastore_id = var.proxmox_storage
-    size         = 20
+    size         = 40
     interface    = "scsi0"
   }
 
