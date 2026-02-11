@@ -112,7 +112,7 @@ terraform apply -var="opnsense_enabled=true" -var="test_vm_enabled=false"
 4. Follow installation wizard
 5. Configure interfaces:
    - vtnet0 → WAN (DHCP or 192.168.1.x)
-   - vtnet1 → LAN (10.0.1.1/24)
+   - vtnet1 → LAN (10.0.1.1/24) - OpenClaw isolated segment
    - vtnet2 → DMZ (10.0.2.1/24)
 6. Access Web GUI: `https://<WAN_IP>`
 7. Default login: `root` / `opnsense`

@@ -61,6 +61,22 @@ output "ctfd_ipv4_addresses" {
   value       = var.ctf_enabled ? proxmox_virtual_environment_vm.ctfd[0].ipv4_addresses : null
 }
 
+# OpenClaw
+output "openclaw_id" {
+  description = "OpenClaw VM ID"
+  value       = var.openclaw_enabled ? proxmox_virtual_environment_vm.openclaw[0].vm_id : null
+}
+
+output "openclaw_name" {
+  description = "OpenClaw VM name"
+  value       = var.openclaw_enabled ? proxmox_virtual_environment_vm.openclaw[0].name : null
+}
+
+output "openclaw_ipv4_addresses" {
+  description = "OpenClaw VM IPv4 addresses"
+  value       = var.openclaw_enabled ? proxmox_virtual_environment_vm.openclaw[0].ipv4_addresses : null
+}
+
 # =============================================================================
 # Summary Output
 # =============================================================================
@@ -88,6 +104,12 @@ output "vm_summary" {
       vm_id          = proxmox_virtual_environment_vm.ctfd[0].vm_id
       name           = proxmox_virtual_environment_vm.ctfd[0].name
       ipv4_addresses = proxmox_virtual_environment_vm.ctfd[0].ipv4_addresses
+    } : null
+
+    openclaw = var.openclaw_enabled ? {
+      vm_id          = proxmox_virtual_environment_vm.openclaw[0].vm_id
+      name           = proxmox_virtual_environment_vm.openclaw[0].name
+      ipv4_addresses = proxmox_virtual_environment_vm.openclaw[0].ipv4_addresses
     } : null
   }
 }

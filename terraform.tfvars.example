@@ -26,3 +26,10 @@ tpot_template_id = 9001  # Debian 12
 # CTFd
 ctf_enabled     = false
 ctf_template_id = 9000  # Ubuntu 24.04
+
+# OpenClaw (OpenClaw)
+openclaw_enabled     = false
+openclaw_template_id = 9000  # Ubuntu 24.04
+openclaw_cores       = 4
+openclaw_memory      = 16384
+openclaw_disk_size   = 80

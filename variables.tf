@@ -102,3 +102,36 @@ variable "ctf_template_id" {
   type        = number
   default     = 9000
 }
+
+# =============================================================================
+# OpenClaw - Autonomous AI agent (OpenClaw)
+# =============================================================================
+variable "openclaw_enabled" {
+  description = "Enable OpenClaw VM creation"
+  type        = bool
+  default     = false
+}
+
+variable "openclaw_template_id" {
+  description = "Template VM ID for OpenClaw (Ubuntu 24.04)"
+  type        = number
+  default     = 9000
+}
+
+variable "openclaw_cores" {
+  description = "Number of CPU cores for OpenClaw VM"
+  type        = number
+  default     = 4
+}
+
+variable "openclaw_memory" {
+  description = "Memory in MB for OpenClaw VM"
+  type        = number
+  default     = 16384
+}
+
+variable "openclaw_disk_size" {
+  description = "Disk size in GB for OpenClaw VM"
+  type        = number
+  default     = 80
+}

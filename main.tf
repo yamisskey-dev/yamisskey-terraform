@@ -230,3 +230,62 @@ resource "proxmox_virtual_environment_vm" "ctfd" {
     ]
   }
 }
+
+# =============================================================================
+# OpenClaw - Autonomous AI agent isolated environment
+# =============================================================================
+resource "proxmox_virtual_environment_vm" "openclaw" {
+  count = var.openclaw_enabled ? 1 : 0
+
+  name        = "openclaw"
+  description = "OpenClaw - Autonomous AI agent isolated on LAN segment"
+  node_name   = var.proxmox_node
+  tags        = ["terraform", "production", "openclaw"]
+  vm_id       = 104
+
+  clone {
+    vm_id = var.openclaw_template_id
+  }
+
+  cpu {
+    cores = var.openclaw_cores
+    type  = "host"
+  }
+
+  memory {
+    dedicated = var.openclaw_memory
+  }
+
+  disk {
+    datastore_id = var.proxmox_storage
+    size         = var.openclaw_disk_size
+    interface    = "scsi0"
+  }
+
+  # LAN network - isolated segment (formerly GOAD)
+  network_device {
+    bridge = "vmbr1"
+    model  = "virtio"
+  }
+
+  initialization {
+    user_account {
+      username = data.sops_file.secrets.data["vm_credentials.openclaw.username"]
+      password = data.sops_file.secrets.data["vm_credentials.openclaw.password"]
+    }
+    ip_config {
+      ipv4 {
+        address = "dhcp"
+      }
+    }
+  }
+
+  on_boot = true
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes = [
+      initialization,
+    ]
+  }
+}
