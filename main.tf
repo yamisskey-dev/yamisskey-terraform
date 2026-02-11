@@ -85,21 +85,21 @@ resource "proxmox_virtual_environment_vm" "opnsense" {
     file_format  = "raw"
   }
 
-  # WAN - External network (vtnet0 in OPNsense)
-  network_device {
-    bridge = "vmbr0"
-    model  = "virtio"
-  }
-
-  # LAN - Internal network (vtnet1 in OPNsense)
+  # net0/vtnet0 - LAN (OPNsense assigns interfaces internally)
   network_device {
     bridge = "vmbr1"
     model  = "virtio"
   }
 
-  # DMZ - Security research zone (vtnet2 in OPNsense)
+  # net1/vtnet1 - DMZ
   network_device {
     bridge = "vmbr2"
+    model  = "virtio"
+  }
+
+  # net2/vtnet2 - WAN
+  network_device {
+    bridge = "vmbr0"
     model  = "virtio"
   }
 
@@ -112,6 +112,8 @@ resource "proxmox_virtual_environment_vm" "opnsense" {
     ignore_changes = [
       cdrom, # Allow removing ISO after install
       started,
+      kvm_arguments, # Manually set, API token cannot modify 'args'
+      cpu,           # CPU type configured during OPNsense install
     ]
   }
 }
@@ -129,6 +131,11 @@ resource "proxmox_virtual_environment_vm" "tpot" {
 
   clone {
     vm_id = var.tpot_template_id
+  }
+
+  agent {
+    enabled = true
+    timeout = "30s"
   }
 
   cpu {
@@ -185,8 +192,12 @@ resource "proxmox_virtual_environment_vm" "ctfd" {
   tags        = ["terraform", "production", "ctf"]
   vm_id       = 103
 
-  clone {
-    vm_id = var.ctf_template_id
+  # clone block removed: VM was imported from existing Proxmox VM
+  # To recreate, re-add: clone { vm_id = var.ctf_template_id }
+
+  agent {
+    enabled = true
+    timeout = "30s"
   }
 
   cpu {
@@ -245,6 +256,11 @@ resource "proxmox_virtual_environment_vm" "openclaw" {
 
   clone {
     vm_id = var.openclaw_template_id
+  }
+
+  agent {
+    enabled = true
+    timeout = "30s"
   }
 
   cpu {
