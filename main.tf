@@ -296,6 +296,11 @@ resource "proxmox_virtual_environment_vm" "openclaw" {
     }
   }
 
+  # Console: std VGA (changed from serial0 inherited by cloud-init template)
+  vga {
+    type = "std"
+  }
+
   on_boot = true
 
   lifecycle {
