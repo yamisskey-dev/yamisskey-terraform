@@ -36,6 +36,9 @@ secrets.decrypted.yaml
 # Lock file (commit this in real project)
 # .terraform.lock.hcl
 
+# Claude Code local settings (may contain tokens)
+.claude/settings.local.json
+
 # IDE
 .idea/
 .vscode/
