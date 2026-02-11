@@ -11,15 +11,15 @@ Proxmox VE VM provisioning for yamisskey security research infrastructure.
 | OPNsense | 101 | 4c/8GB/32GB | vmbr0,1,2 | Router/Firewall | 常設 |
 | T-Pot | 100 | 8c/16GB/256GB | vmbr2 | Honeypot (ELK) | 常設 |
 | CTFd | 103 | 2c/4GB/40GB | vmbr2 | CTF platform | 常設 |
-| OpenClaw | 104 | 4c/16GB/80GB | vmbr1 | Autonomous AI agent | 常設 |
+| OpenClaw | 104 | 8c/24GB/80GB | vmbr1 | Autonomous AI agent | 常設 |
 
 ### Resource Profiles (64GB Host)
 
 | Profile | VMs | Memory | Notes |
 |---------|-----|--------|-------|
-| **Always-on** | OPNsense + T-Pot + CTFd + OpenClaw | 44GB | 常時稼働 |
+| **Always-on** | OPNsense + T-Pot + CTFd + OpenClaw | 52GB | 常時稼働 |
 
-**Reserved:** Proxmox VE ~4GB / **Free:** ~16GB
+**Reserved:** Proxmox VE ~4GB / **Free:** ~8GB
 
 ## Network
 
@@ -48,11 +48,11 @@ graph TB
             vmbr2[vmbr2 DMZ<br/>10.0.2.0/24]:::net
         end
 
-        subgraph always["Always-on (44GB)"]
+        subgraph always["Always-on (52GB)"]
             opnsense[OPNsense<br/>4c/8GB]:::sec
             tpot[T-Pot Standard<br/>8c/16GB]:::sec
             ctfd[CTFd<br/>2c/4GB]:::ctf
-            openclaw[OpenClaw<br/>4c/16GB]:::agent
+            openclaw[OpenClaw<br/>8c/24GB]:::agent
         end
     end
 

@@ -121,13 +121,13 @@ variable "openclaw_template_id" {
 variable "openclaw_cores" {
   description = "Number of CPU cores for OpenClaw VM"
   type        = number
-  default     = 4
+  default     = 8
 }
 
 variable "openclaw_memory" {
   description = "Memory in MB for OpenClaw VM"
   type        = number
-  default     = 16384
+  default     = 24576
 }
 
 variable "openclaw_disk_size" {
