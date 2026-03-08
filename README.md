@@ -12,22 +12,33 @@ Proxmox VE VM provisioning for yamisskey security research infrastructure.
 | T-Pot | 100 | 8c/16GB/256GB | vmbr2 | Honeypot (ELK) | 常設 |
 | CTFd | 103 | 2c/4GB/40GB | vmbr2 | CTF platform | 常設 |
 | OpenClaw | 104 | 8c/24GB/80GB | vmbr1 | Autonomous AI agent | 常設 |
+| HAOS | 105 | 2c/4GB/32GB | vmbr1 | Home Assistant OS | 常設 |
 
 ### Resource Profiles (64GB Host)
 
 | Profile | VMs | Memory | Notes |
 |---------|-----|--------|-------|
-| **Always-on** | OPNsense + T-Pot + CTFd + OpenClaw | 52GB | 常時稼働 |
+| **Always-on** | OPNsense + T-Pot + CTFd + OpenClaw + HAOS | 56GB | 常時稼働 |
 
-**Reserved:** Proxmox VE ~4GB / **Free:** ~8GB
+**Reserved:** Proxmox VE ~4GB / **Free:** ~4GB
 
 ## Network
 
 | Bridge | Subnet | Purpose |
 |--------|--------|---------|
 | vmbr0 | 192.168.1.0/24 | WAN/Management |
-| vmbr1 | 10.0.1.0/24 | LAN (OpenClaw) |
+| vmbr1 | 10.0.1.0/24 | LAN (OpenClaw, HAOS) |
 | vmbr2 | 10.0.2.0/24 | DMZ (T-Pot, CTFd) |
+
+### Access
+
+| VM | アクセス方法 |
+|----|-------------|
+| OPNsense | WAN 直接 (HTTPS) |
+| T-Pot | OPNsense NAT ポートフォワード |
+| CTFd | OPNsense NAT ポートフォワード |
+| OpenClaw | OPNsense NAT ポートフォワード |
+| HAOS | OPNsense NAT ポートフォワード / Tailscale Serve |
 
 ## Architecture
 
@@ -38,6 +49,7 @@ graph TB
     classDef sec fill:#fee2e2,stroke:#991b1b
     classDef ctf fill:#fef3c7,stroke:#d97706
     classDef agent fill:#e8f5e9,stroke:#2e7d32
+    classDef home fill:#e3f2fd,stroke:#1565c0
 
     subgraph proxmox["GMKtec K10 - Proxmox VE (64GB)"]
         direction TB
@@ -48,17 +60,18 @@ graph TB
             vmbr2[vmbr2 DMZ<br/>10.0.2.0/24]:::net
         end
 
-        subgraph always["Always-on (52GB)"]
+        subgraph always["Always-on (56GB)"]
             opnsense[OPNsense<br/>4c/8GB]:::sec
             tpot[T-Pot Standard<br/>8c/16GB]:::sec
             ctfd[CTFd<br/>2c/4GB]:::ctf
             openclaw[OpenClaw<br/>8c/24GB]:::agent
+            haos[HAOS<br/>2c/4GB]:::home
         end
     end
 
     vmbr0 --> opnsense
     opnsense --> vmbr1 & vmbr2
-    vmbr1 --> openclaw
+    vmbr1 --> openclaw & haos
     vmbr2 --> tpot & ctfd
 
     class proxmox host
@@ -72,8 +85,26 @@ sops secrets.sops.yaml
 
 # 2. Deploy
 terraform init
-terraform apply -var="opnsense_enabled=true"
+terraform apply
+
+# 3. HAOS: provisioner creates VM via qm commands on Proxmox host
+#    After first apply, import the VM into state:
+terraform import 'proxmox_virtual_environment_vm.haos[0]' mary/105
 ```
+
+### SSH
+
+Proxmox ホストへの SSH は `~/.ssh/id_ed25519_mary` を使用:
+
+```bash
+ssh mary  # ~/.ssh/config で設定済み
+```
+
+### HAOS 固有の注意点
+
+- HAOS は cloud-init 非対応。初期設定は WebUI (`http://192.168.1.8:8123`) から実施
+- bpg/proxmox provider の SSH (`file_id`) は WSL2 環境で動作しないため、`terraform_data` provisioner + `qm` コマンドで VM 作成・ディスクインポートを自動化
+- Tailscale アドオン (Serve) で外部アクセス可能
 
 ## Templates (on Proxmox)
 
@@ -93,4 +124,3 @@ bunzip2 OPNsense-25.1-dvd-amd64.iso.bz2
 ## Docs
 
 - [Setup Guide](docs/setup.md) - Detailed setup instructions
-
