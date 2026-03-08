@@ -166,7 +166,7 @@ variable "haos_cores" {
 variable "haos_memory" {
   description = "Memory in MB for HAOS VM"
   type        = number
-  default     = 8192
+  default     = 4096
 }
 
 variable "haos_disk_size" {
