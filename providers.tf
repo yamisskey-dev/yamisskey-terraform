@@ -22,4 +22,9 @@ provider "proxmox" {
   endpoint  = data.sops_file.secrets.data["proxmox_api_url"]
   api_token = "${data.sops_file.secrets.data["proxmox_api_token_id"]}=${data.sops_file.secrets.data["proxmox_api_token_secret"]}"
   insecure  = data.sops_file.secrets.data["proxmox_tls_insecure"] == "true"
+
+  ssh {
+    agent    = true
+    username = "root"
+  }
 }

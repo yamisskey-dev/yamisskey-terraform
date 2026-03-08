@@ -310,3 +310,124 @@ resource "proxmox_virtual_environment_vm" "openclaw" {
     ]
   }
 }
+
+# =============================================================================
+# Home Assistant OS - Smart Home Platform
+# =============================================================================
+# Automated deployment: SSH to Proxmox host to download/extract HAOS qcow2.xz,
+# then create the VM referencing the imported image.
+# Requires: SSH key-based access to Proxmox host (root@proxmox_host).
+
+# Step 1: Download HAOS image and create VM via qm commands on Proxmox host.
+# This bypasses the provider's SSH-based file_id import which is incompatible
+# with Windows SSH agent forwarded to WSL2.
+resource "terraform_data" "haos_provision" {
+  count = var.haos_enabled ? 1 : 0
+
+  triggers_replace = [var.haos_version]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      ssh -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519_mary -o StrictHostKeyChecking=accept-new root@${var.proxmox_host} '
+        set -e
+        VMID=105
+        IMG="/var/lib/vz/template/iso/haos_ova-${var.haos_version}.qcow2"
+
+        # Download image if not present
+        if [ ! -f "$IMG" ]; then
+          echo "Downloading HAOS ${var.haos_version}..."
+          wget -q -O /tmp/haos.qcow2.xz \
+            "https://github.com/home-assistant/operating-system/releases/download/${var.haos_version}/haos_ova-${var.haos_version}.qcow2.xz"
+          echo "Extracting..."
+          xz -d /tmp/haos.qcow2.xz
+          mv /tmp/haos.qcow2 "$IMG"
+          echo "Done: $IMG"
+        else
+          echo "Image already exists: $IMG"
+        fi
+
+        # Create VM if not exists
+        if ! qm status $VMID >/dev/null 2>&1; then
+          echo "Creating VM $VMID..."
+          qm create $VMID \
+            --name haos \
+            --bios ovmf \
+            --machine q35 \
+            --cpu host \
+            --cores ${var.haos_cores} \
+            --memory ${var.haos_memory} \
+            --net0 virtio,bridge=vmbr1 \
+            --scsihw virtio-scsi-pci \
+            --agent 1 \
+            --onboot 1 \
+            --tags "terraform;production;homeassistant"
+
+          echo "Importing disk..."
+          qm set $VMID --scsi0 ${var.proxmox_storage}:0,import-from=$IMG,discard=on,ssd=1
+          qm set $VMID --boot order=scsi0
+
+          echo "Starting VM..."
+          qm start $VMID
+          echo "HAOS VM $VMID created and started."
+        else
+          echo "VM $VMID already exists, skipping creation."
+        fi
+      '
+    EOT
+  }
+}
+
+# Step 2: Manage the VM created by the provisioner above.
+# After first `terraform apply`, run:
+#   terraform import 'proxmox_virtual_environment_vm.haos[0]' mary/105
+resource "proxmox_virtual_environment_vm" "haos" {
+  count      = var.haos_enabled ? 1 : 0
+  depends_on = [terraform_data.haos_provision]
+
+  name        = "haos"
+  description = "Home Assistant OS - Smart home platform on LAN segment"
+  node_name   = var.proxmox_node
+  tags        = ["terraform", "production", "homeassistant"]
+  vm_id       = 105
+
+  agent {
+    enabled = true
+    timeout = "30s"
+  }
+
+  cpu {
+    cores = var.haos_cores
+    type  = "host"
+  }
+
+  memory {
+    dedicated = var.haos_memory
+  }
+
+  disk {
+    datastore_id = var.proxmox_storage
+    interface    = "scsi0"
+    size         = var.haos_disk_size
+    discard      = "on"
+    ssd          = true
+  }
+
+  # LAN network - same segment as OpenClaw for API integration
+  network_device {
+    bridge = "vmbr1"
+    model  = "virtio"
+  }
+
+  bios    = "ovmf"
+  machine = "q35"
+
+  on_boot = true
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes = [
+      disk,    # HAOS auto-resizes disk on first boot
+      started,
+    ]
+  }
+}

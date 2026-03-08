@@ -111,5 +111,27 @@ output "vm_summary" {
       name           = proxmox_virtual_environment_vm.openclaw[0].name
       ipv4_addresses = proxmox_virtual_environment_vm.openclaw[0].ipv4_addresses
     } : null
+
+    haos = var.haos_enabled ? {
+      vm_id          = proxmox_virtual_environment_vm.haos[0].vm_id
+      name           = proxmox_virtual_environment_vm.haos[0].name
+      ipv4_addresses = proxmox_virtual_environment_vm.haos[0].ipv4_addresses
+    } : null
   }
+}
+
+# Home Assistant OS
+output "haos_id" {
+  description = "Home Assistant OS VM ID"
+  value       = var.haos_enabled ? proxmox_virtual_environment_vm.haos[0].vm_id : null
+}
+
+output "haos_name" {
+  description = "Home Assistant OS VM name"
+  value       = var.haos_enabled ? proxmox_virtual_environment_vm.haos[0].name : null
+}
+
+output "haos_ipv4_addresses" {
+  description = "Home Assistant OS VM IPv4 addresses"
+  value       = var.haos_enabled ? proxmox_virtual_environment_vm.haos[0].ipv4_addresses : null
 }

@@ -135,3 +135,42 @@ variable "openclaw_disk_size" {
   type        = number
   default     = 80
 }
+
+# =============================================================================
+# Home Assistant OS
+# =============================================================================
+variable "proxmox_host" {
+  description = "Proxmox host SSH address (for provisioner commands)"
+  type        = string
+  default     = "192.168.1.1"
+}
+
+variable "haos_enabled" {
+  description = "Enable Home Assistant OS VM creation"
+  type        = bool
+  default     = false
+}
+
+variable "haos_version" {
+  description = "Home Assistant OS version (used for image download URL)"
+  type        = string
+  default     = "14.2"
+}
+
+variable "haos_cores" {
+  description = "Number of CPU cores for HAOS VM"
+  type        = number
+  default     = 2
+}
+
+variable "haos_memory" {
+  description = "Memory in MB for HAOS VM"
+  type        = number
+  default     = 8192
+}
+
+variable "haos_disk_size" {
+  description = "Disk size in GB for HAOS VM"
+  type        = number
+  default     = 32
+}
